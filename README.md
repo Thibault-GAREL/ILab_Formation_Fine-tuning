@@ -9,7 +9,7 @@
 ![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)
 
 <p align="center">
-  <img src="data/1-raw/my_drawings/Capture Bienvenu.PNG" alt="Chibi Thibault waving hello" width=80%>
+  <img src="data/1-raw/my_drawings/Capture Bienvenu.PNG" alt="Chibi Thibault waving hello" width="60%">
   <!-- <img src="data/1-raw/my_drawings/Capture bras croisés.PNG" alt="Chibi Thibault arms crossed" width="220">
   <img src="data/1-raw/my_drawings/Capture surprise.PNG" alt="Chibi Thibault surprised" width="220"> -->
 </p>
