@@ -1,0 +1,13 @@
+# Base
+numpy
+pandas
+matplotlib
+
+# Config
+pydantic-settings
+
+# Tracking
+mlflow
+
+# Tests
+pytest

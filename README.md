@@ -1,0 +1,1 @@
+Lit le skill de création de Readme thibault et met à jour le readme en conséquence pour expliquer le projet !
