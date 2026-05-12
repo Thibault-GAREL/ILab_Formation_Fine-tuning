@@ -2,9 +2,27 @@
 numpy
 pandas
 matplotlib
+pillow
 
 # Config
 pydantic-settings
+
+# Deep Learning (versions installées dans pytorch_cuda_env)
+# torch==2.5.1+cu121  -> installé séparément avec index PyTorch CUDA
+# torchvision==0.20.1+cu121
+transformers
+accelerate
+peft
+bitsandbytes
+safetensors
+datasets
+huggingface_hub
+
+# Stable Diffusion fine-tuning
+diffusers
+
+# Démo
+gradio
 
 # Tracking
 mlflow
