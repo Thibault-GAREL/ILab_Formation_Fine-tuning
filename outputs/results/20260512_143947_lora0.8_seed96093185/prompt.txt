@@ -1,0 +1,7 @@
+prompt: a thibchibi character drinking coffee, sunny day
+negative_prompt: blurry, lowres, deformed, ugly, bad anatomy
+steps: 30
+guidance_scale: 7.5
+lora_scale: 0.8
+seed: 96093185
+base_model: stable-diffusion-v1-5/stable-diffusion-v1-5

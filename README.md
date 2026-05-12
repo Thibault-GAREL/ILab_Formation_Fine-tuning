@@ -18,7 +18,7 @@
 
 ## 📝 Project Description
 
-This project fine-tunes **Stable Diffusion 1.5** on **15 hand-drawn chibi self-portraits** so the model learns to generate new images in my personal art style. It uses **LoRA (Low-Rank Adaptation)** via 🤗 `diffusers` + `peft` — a parameter-efficient method that produces a tiny ~40 MB adapter file instead of touching the base model weights.
+This project fine-tunes **Stable Diffusion 1.5** on **15 hand-drawn chibi self-portraits** so the model learns to generate new images in my personal art style. It uses **LoRA (Low-Rank Adaptation)** via 🤗 `diffusers` + `peft` — a parameter-efficient method that produces a tiny ~30 MB adapter file instead of touching the base model weights.
 
 The goal: a **simple, fast, reusable base project** for future style/character fine-tunings. The character trigger word is `thibchibi` — I use it in prompts to invoke the learned style.
 
@@ -64,40 +64,63 @@ The goal: a **simple, fast, reusable base project** for future style/character f
 
 ---
 
-## 🚨 Status — Work In Progress
+## Example Outputs
 
-This project is being built **step-by-step**. Current state:
+Generated with the trained LoRA on top of vanilla SD 1.5 (`lora_scale=0.8`, 30 denoising steps, guidance=7.5).
 
-  ✅ **Project structure** — `src/`, `data/`, `outputs/` skeleton ready
+<table align="center">
+  <tr>
+    <td align="center" colspan="4"><b>Prompt 1 — </b><i>"a thibchibi character drinking coffee, sunny day"</i></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="outputs/results/20260512_143947_lora0.8_seed96093185/image_00.png" width="180"></td>
+    <td align="center"><img src="outputs/results/20260512_143947_lora0.8_seed96093185/image_01.png" width="180"></td>
+    <td align="center"><img src="outputs/results/20260512_143947_lora0.8_seed96093185/image_02.png" width="180"></td>
+    <td align="center"><img src="outputs/results/20260512_143947_lora0.8_seed96093185/image_03.png" width="180"></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="4"><b>Prompt 2 — </b><i>"a thibchibi character riding a skateboard"</i></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="outputs/results/20260512_144021_lora0.8_seed1146161856/image_00.png" width="180"></td>
+    <td align="center"><img src="outputs/results/20260512_144021_lora0.8_seed1146161856/image_01.png" width="180"></td>
+    <td align="center"><img src="outputs/results/20260512_144021_lora0.8_seed1146161856/image_02.png" width="180"></td>
+    <td align="center"><img src="outputs/results/20260512_144021_lora0.8_seed1146161856/image_03.png" width="180"></td>
+  </tr>
+</table>
 
-  ✅ **Config** ([src/config.py](src/config.py)) — LoRA hyperparameters tuned for **GTX 1660 Ti (6 GB VRAM)**
+### 📈 Training curves
 
-  ✅ **Data pipeline** ([src/data/make_dataset.py](src/data/make_dataset.py)) — auto captions from filenames, resize 512×512 with white padding
+<table align="center">
+  <tr>
+    <td align="center"><img src="assets/loss_curve.svg" width="500"></td>
+    <td align="center"><img src="assets/lr_schedule.svg" width="500"></td>
+  </tr>
+</table>
 
-  ✅ **Training script** ([src/models/train.py](src/models/train.py)) — LoRA fine-tuning loop with `accelerate` + MLflow tracking
+### 📝 Notes & Observations
 
-  ✅ **Inference script** ([src/models/generate.py](src/models/generate.py)) — CLI with `--lora-scale`, `--no-lora` for before/after comparison
+  📉 Loss is **very noisy** (batch size 1 on 15 images repeated → high variance per step). The 50-step moving average shows it stabilizes around 0.01-0.02.
 
-  ✅ **Gradio demo** ([src/demo.py](src/demo.py)) — local web UI with live `lora_scale` slider
+  🎯 LoRA scale **0.8** gives the best balance — at 1.0 the style is overly saturated, at 0.5 it barely affects the output.
 
-  ⏳ **First training run** — pending (waiting on install fix below)
+  🧪 The model **transfers the chibi style** but struggles with backgrounds/scenes outside the training distribution (15 images all on white backgrounds).
 
-  ⏳ **Architecture diagram SVG** — TODO (will be generated via the `canva-diagrams` skill)
+  💡 **Next steps to improve**: add data augmentation, enrich captions with backgrounds, train longer with `LORA_RANK=32`. See the "How to keep training" section.
 
-  ⏳ **Example outputs** — TODO (will be filled after first successful run)
+---
 
-### ⚠️ Pending install fix
+## ✅ Highlights
 
-`pip install diffusers gradio` failed mid-install due to a Windows file-lock on `_safetensors_rust.pyd` (another Python process held the file). The `safetensors` package was uninstalled but not reinstalled — **the venv is in a broken state until this is fixed**.
+  🎯 **Trained on RunPod for less than 1 €** (RTX A4000, ~7 min for 800 steps)
 
-**To resolve** (close all VS Code Python interpreters / Jupyter kernels first):
+  🪶 **Final adapter is only ~30 MB** — base SD 1.5 weights are never touched
 
-```powershell
-& c:\0-Code_py_temp\pytorch_cuda_env\Scripts\Activate.ps1
-pip install --force-reinstall --no-deps safetensors
-pip install diffusers gradio
-python -c "import diffusers, gradio, safetensors; print(diffusers.__version__, gradio.__version__, safetensors.__version__)"
-```
+  ⚙️ **Reusable base project** — swap the dataset and trigger word to fine-tune another style/character in minutes
+
+  🧪 **Full MLflow tracking** — loss curve, hyperparameters and gradients logged per run
+
+  🖼️ **Gradio web demo** — load the LoRA once and tweak `lora_scale` live with a slider
 
 ---
 
@@ -107,7 +130,7 @@ python -c "import diffusers, gradio, safetensors; print(diffusers.__version__, g
 
   ⚡ **Trigger-word approach** — single token (`thibchibi`) shared across all training images, captions auto-generated from filenames
 
-  🪶 **Lightweight output** — final adapter ~40 MB, base SD model stays untouched and reusable
+  🪶 **Lightweight output** — final adapter ~30 MB, base SD model stays untouched and reusable
 
   💾 **VRAM-friendly** — fp16, gradient checkpointing, gradient accumulation → fits on a 6 GB GPU
 
@@ -127,7 +150,7 @@ python -c "import diffusers, gradio, safetensors; print(diffusers.__version__, g
 
   🎯 The base SD model is **frozen** — only the LoRA weights (~0.8% of total params) are trained.
 
-  📉 Training runs for **~800 steps** with AdamW (lr=1e-4), batch size 1, gradient accumulation 4 → effective batch 4. Total time ≈ 20-30 min on GTX 1660 Ti.
+  📉 Training runs for **~800 steps** with AdamW (lr=1e-4), batch size 1, gradient accumulation 4 → effective batch 4. Total time ≈ **~7 min on an RTX A4000** (RunPod, < 1 €).
 
   🔮 **At inference**, the LoRA is loaded on top of vanilla SD 1.5, and prompts containing `thibchibi` produce images in the learned style.
 
@@ -135,31 +158,7 @@ python -c "import diffusers, gradio, safetensors; print(diffusers.__version__, g
 
 ## 🗺️ Architecture Diagram
 
-> 🚧 SVG diagram TODO — will be generated via the `canva-diagrams` skill once training is validated.
-
-For now, the high-level flow:
-
-```
-                    ┌──────────────────────────────┐
-                    │ 15 PNG drawings + captions   │
-                    └────────────┬─────────────────┘
-                                 │
-                                 ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Stable Diffusion 1.5 (frozen)                              │
-│                                                             │
-│   Text Encoder ──► UNet ◄── LoRA adapters (TRAINED)         │
-│        │             │                                      │
-│        ▼             ▼                                      │
-│      tokens      noise pred                                 │
-└─────────────────────────────────────────────────────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────────┐
-                    │ outputs/models/lora_thibchibi│
-                    │       (~40 MB adapter)       │
-                    └──────────────────────────────┘
-```
+![Architecture Diagram](img/architecture.svg)
 
 **Key hyperparameters** (see [src/config.py](src/config.py)):
 - `BASE_MODEL = stable-diffusion-v1-5/stable-diffusion-v1-5`
@@ -173,6 +172,9 @@ For now, the high-level flow:
 ## 📂 Repository structure
 
 ```bash
+├── assets/                     # SVG plots (loss, LR schedule) for the README
+├── img/                        # Architecture diagram SVG
+│
 ├── data/
 │   ├── 1-raw/
 │   │   └── my_drawings/        # 15 chibi PNG (input)
@@ -187,11 +189,15 @@ For now, the high-level flow:
 ├── src/
 │   ├── config.py               # pydantic settings (paths + hyperparams)
 │   ├── utils.py
+│   ├── demo.py                 # Gradio web demo (live lora_scale slider)
+│   ├── plot_training_metrics.py  # MLflow metrics -> SVG plots in assets/
+│   ├── fix_mlflow_paths.py       # rewrite absolute paths after a cross-OS transfer
 │   ├── data/
 │   │   └── make_dataset.py     # PNG -> resize -> captions -> dataset HF
 │   ├── models/
 │   │   ├── model.py
-│   │   └── train.py            # LoRA fine-tuning loop + MLflow
+│   │   ├── train.py            # LoRA fine-tuning loop + MLflow
+│   │   └── generate.py         # CLI inference with --lora-scale, --no-lora
 │   └── validation/
 │       └── metrics.py
 │
@@ -206,30 +212,30 @@ For now, the high-level flow:
 
 ## 💻 Run it on Your PC
 
-Clone the repository:
+Clone the repository and set up a Python environment:
 
 ```bash
-git clone https://github.com/Thibault-GAREL/ILab_Formation_Fine_tuning.git
-cd ILab_Formation_Fine_tuning
+git clone https://github.com/Thibault-GAREL/ILab_Formation_Fine-tuning.git
+cd ILab_Formation_Fine-tuning
+
+python -m venv .venv          # if you don't have a virtual environment
+source .venv/bin/activate     # Linux / macOS
+.venv\Scripts\activate        # Windows
+
+pip install -r requirements.txt
 ```
 
-Activate the pre-configured PyTorch + CUDA env (Windows / PowerShell):
+⚠️ `torch` and `torchvision` are **not** in `requirements.txt` — install them separately so they match your CUDA version. For example with CUDA 12.1:
 
-```powershell
-& c:\0-Code_py_temp\pytorch_cuda_env\Scripts\Activate.ps1
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 ```
 
-Install the project-specific libraries (the rest is already in the venv):
-
-```powershell
-pip install diffusers gradio
-```
-
-⚠️ You need a **CUDA-compatible GPU** with at least **6 GB VRAM** to fine-tune locally. Otherwise, the same scripts can be executed on **RunPod** (rent an RTX 3090 / A4000 for ~0.25 $/h).
+⚠️ You need a **CUDA-compatible GPU** with at least **6 GB VRAM** to fine-tune locally. Otherwise, see the **Run it on RunPod** section below.
 
 ### 1. Prepare the dataset
 
-```powershell
+```bash
 python -m src.data.make_dataset
 ```
 
@@ -237,7 +243,7 @@ Reads `data/1-raw/my_drawings/`, writes resized images + `metadata.jsonl` into `
 
 ### 2. Train the LoRA
 
-```powershell
+```bash
 python -m src.models.train
 ```
 
@@ -245,17 +251,155 @@ LoRA adapter saved to `outputs/models/lora_thibchibi/`. Training run logged to M
 
 ### 3. Generate images
 
-```powershell
+```bash
 python -m src.models.generate --prompt "a thibchibi character riding a bike"
 ```
 
 ### 4. Launch the Gradio demo
 
-```powershell
+```bash
 python -m src.demo
 ```
 
 Then open [http://127.0.0.1:7860](http://127.0.0.1:7860) in your browser.
+
+---
+
+## 🚀 Run it on RunPod (cloud GPU)
+
+If your local GPU isn't enough or you want to iterate faster, the same scripts run on a **RunPod cloud pod**. Recommended setup: **RTX A4000 (16 GB) ~$0.17/h** or **RTX 3090 (24 GB) ~$0.25-0.34/h** — both train SD 1.5 LoRA in ~5-10 min.
+
+### 1. Pod setup (UI runpod.io)
+
+- **Template** → `RunPod PyTorch 2.x` (image with torch + CUDA preinstalled)
+- **GPU** → A4000 or RTX 3090
+- **Container Disk** → 30 GB | **Volume Disk** → 30 GB (persistent `/workspace`)
+- **Expose HTTP port** → `7860` (for the Gradio demo)
+- **Add your SSH public key** in `User Settings → SSH Public Keys` (copy `~/.ssh/id_ed25519.pub`). ⚠️ The key is only injected when the pod **starts** — if you add it after starting, do **Stop + Start** (not Terminate, which deletes the volume).
+
+### 2. Connect to the pod
+
+```bash
+ssh <POD_USER>@ssh.runpod.io -i ~/.ssh/id_ed25519
+# Connection details (user + port) are in the pod's "Connect" panel.
+```
+
+### 3. Fix dependencies (CUDA mismatch is common on RunPod)
+
+The RunPod image often ships with `torch` newer than `torchvision`, which breaks at import (`operator torchvision::nms does not exist`). Fix it:
+
+```bash
+# Check the CUDA version torch was built against
+python -c "import torch; print(torch.version.cuda)"   # e.g., 13.0
+
+# Reinstall torchvision aligned with torch's CUDA (replace cu130 by cu121 / cu124 / cu128 accordingly)
+pip install --force-reinstall --no-deps torchvision --index-url https://download.pytorch.org/whl/cu130
+
+# Remove bitsandbytes (not used here, and it fails to load on cu130)
+pip uninstall -y bitsandbytes
+
+# Verify
+python -c "import torch, torchvision; print(torch.__version__, '|', torchvision.__version__); from torchvision.ops import nms; print('nms OK')"
+```
+
+### 4. Clone + install the project
+
+```bash
+cd /workspace
+git clone https://github.com/Thibault-GAREL/ILab_Formation_Fine-tuning.git
+cd ILab_Formation_Fine-tuning      # ⚠️ must cd before `python -m src.*` runs
+pip install -r requirements.txt --ignore-installed blinker
+```
+
+<details>
+<summary>💡 Why <code>--ignore-installed blinker</code> ?</summary>
+<br>
+On Debian/Ubuntu-based images, <code>blinker</code> is installed via <code>distutils</code> (apt) and pip refuses to overwrite it. <code>--ignore-installed blinker</code> tells pip to skip that uninstall step and just write the new version over the old files.
+</details>
+
+### 5. Run the full pipeline
+
+```bash
+python -m src.data.make_dataset
+python -m src.models.train
+python -m src.models.generate --prompt "a thibchibi character drinking coffee, sunny day" --num-images 4
+```
+
+<details>
+<summary>📋 Expected training output (800 steps, ~5-10 min on A4000/3090)</summary>
+
+```
+Chargement de stable-diffusion-v1-5/stable-diffusion-v1-5 ...
+Paramètres LoRA entraînables : 3,188,736 (0.37% du UNet)
+Training 800 steps | 15 images | device=cuda
+Mixed precision=fp16 | grad_accum=4
+
+  step    1/800  |  loss=0.0126  |  lr=2.00e-06
+  step   10/800  |  loss=0.0093  |  lr=2.00e-05
+  ...
+  step  800/800  |  loss=0.1278  |  lr=0.00e+00
+
+LoRA sauvegardé -> outputs/models/lora_thibchibi
+```
+
+Warnings to safely ignore:
+- `No LoRA keys associated to CLIPTextModel found` → expected, we only train UNet LoRA
+- `enable_vae_slicing is deprecated` → still works in diffusers 0.38, will be migrated to `pipe.vae.enable_slicing()` later
+- `filesystem tracking backend is deprecated` → MLflow note, harmless for local file logs
+</details>
+
+### 6. Retrieve outputs to your PC
+
+SSH-based `scp` may fail with `Permission denied (publickey)` if the SSH key was uploaded after the pod started. The robust workaround is **`runpodctl`** (preinstalled on most RunPod templates, works without SSH).
+
+**On the pod:**
+
+```bash
+cd /workspace/ILab_Formation_Fine-tuning
+tar czf outputs.tar.gz outputs/
+runpodctl send outputs.tar.gz
+# -> prints a code like:  Code is: XXXX-word-word-word
+# leave the terminal open until receive completes
+```
+
+**On your PC (PowerShell):**
+
+```powershell
+# First time only — download runpodctl for Windows
+wget https://github.com/runpod/runpodctl/releases/latest/download/runpodctl-windows-amd64.exe -O runpodctl.exe
+
+# Receive (paste the code from the pod), then extract + cleanup
+.\runpodctl.exe receive <YOUR_CODE>
+tar -xzf outputs.tar.gz
+Remove-Item outputs.tar.gz
+```
+
+⚠️ Run the receive command **from your project directory** (e.g. `D:\...\ILab_Formation_Fine_tuning\`), otherwise `outputs/` lands in your home folder. If you already extracted elsewhere, move it back with:
+
+```powershell
+robocopy <wrong_path>\outputs <project>\outputs /E /MOVE
+```
+
+### 7. Inspect locally
+
+```bash
+# Activate your local virtual environment first (see "Run it on Your PC" above)
+
+# MLflow UI — see the training run, loss curve, hyperparams
+mlflow ui --backend-store-uri file:./outputs/logs/mlruns
+# -> http://127.0.0.1:5000
+
+# Reuse the trained LoRA locally (no re-training needed)
+python -m src.models.generate --prompt "a thibchibi character on a beach" --num-images 2
+```
+
+### 8. ⛔ Stop the pod when done
+
+In the RunPod UI:
+- **Stop** → keeps `/workspace` (Volume Disk), pauses billing on GPU
+- **Terminate** → deletes everything
+
+Forgetting to stop the pod keeps the meter running. Set a billing alert.
 
 ---
 
@@ -268,23 +412,3 @@ Built on top of:
 - 🤗 [peft](https://github.com/huggingface/peft) — LoRA / parameter-efficient fine-tuning
 
 Code created by me 😎, Thibault GAREL - [Github](https://github.com/Thibault-GAREL)
-
-
-<!-- # 0. Activer le venv
-& c:\0-Code_py_temp\pytorch_cuda_env\Scripts\Activate.ps1
-
-# 1. Préparer le dataset (~5 sec)
-python -m src.data.make_dataset
-
-# 2. Entraîner le LoRA (~20-30 min sur GTX 1660 Ti)
-python -m src.models.train
-
-# 3. Tester via CLI
-python -m src.models.generate --prompt "a thibchibi character drinking coffee"
-
-# 4. Tester via Gradio
-python -m src.demo -->
-
-
-<!-- pip install --force-reinstall --no-deps safetensors
-pip install diffusers gradio -->

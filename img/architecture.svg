@@ -1,0 +1,216 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" preserveAspectRatio="xMidYMid meet">
+  <title>thibchibi LoRA — Fine-tuning Architecture</title>
+
+  <defs>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');</style>
+
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E2E8F0" stroke-width="0.5"/>
+    </pattern>
+
+    <filter id="shadow-sm" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000018"/>
+    </filter>
+    <filter id="shadow-md" x="-5%" y="-5%" width="115%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#00000020"/>
+    </filter>
+
+    <marker id="arrow-slate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748B"/>
+    </marker>
+    <marker id="arrow-violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8B5CF6"/>
+    </marker>
+    <marker id="arrow-emerald" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#10B981"/>
+    </marker>
+    <marker id="arrow-rose" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#F43F5E"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="720" fill="#FFFFFF"/>
+  <rect width="1200" height="720" fill="url(#grid)"/>
+
+  <!-- Title -->
+  <text x="600" y="38" font-family="'Inter', system-ui, sans-serif" font-size="18" font-weight="700" fill="#1E293B" text-anchor="middle">
+    LoRA Fine-tuning of Stable Diffusion 1.5 on the thibchibi style
+  </text>
+  <text x="600" y="58" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">
+    15 hand-drawn images → trainable adapter ~30 MB · base UNet · VAE · Text Encoder stay frozen
+  </text>
+
+  <!-- ============ Column headers ============ -->
+  <text x="125" y="100" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#64748B" text-anchor="middle" letter-spacing="0.5">INPUTS</text>
+  <text x="570" y="100" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#64748B" text-anchor="middle" letter-spacing="0.5">STABLE DIFFUSION 1.5 — TRAINING LOOP</text>
+  <text x="1015" y="100" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#64748B" text-anchor="middle" letter-spacing="0.5">OUTPUT</text>
+
+  <!-- ============ Column 1: INPUT ============ -->
+
+  <!-- Image block -->
+  <g filter="url(#shadow-sm)">
+    <rect x="30" y="135" width="190" height="80" rx="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+    <rect x="30" y="135" width="4" height="80" rx="2" fill="#F59E0B"/>
+    <text x="125" y="163" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle">Image</text>
+    <text x="125" y="183" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">15 PNG drawings</text>
+    <text x="125" y="199" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">resized 512 × 512, RGB</text>
+  </g>
+
+  <!-- Caption block -->
+  <g filter="url(#shadow-sm)">
+    <rect x="30" y="280" width="190" height="80" rx="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+    <rect x="30" y="280" width="4" height="80" rx="2" fill="#F59E0B"/>
+    <text x="125" y="308" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle">Caption</text>
+    <text x="125" y="328" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">"a thibchibi chibi</text>
+    <text x="125" y="344" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">character, waving hello"</text>
+  </g>
+
+  <!-- ============ Column 2: SD 1.5 + LoRA — container ============ -->
+  <rect x="270" y="120" width="600" height="520" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+  <!-- VAE Encoder -->
+  <g filter="url(#shadow-sm)">
+    <rect x="300" y="145" width="220" height="70" rx="10" fill="#F0F9FF" stroke="#0EA5E9" stroke-width="1.5"/>
+    <rect x="300" y="145" width="4" height="70" rx="2" fill="#0EA5E9"/>
+    <text x="410" y="170" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle">VAE Encoder</text>
+    <text x="410" y="188" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">image → latents 64×64×4</text>
+    <rect x="455" y="196" width="50" height="14" rx="7" fill="#94A3B8"/>
+    <text x="480" y="206" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">FROZEN</text>
+  </g>
+
+  <!-- Text Encoder -->
+  <g filter="url(#shadow-sm)">
+    <rect x="620" y="280" width="220" height="80" rx="10" fill="#F0F9FF" stroke="#0EA5E9" stroke-width="1.5"/>
+    <rect x="620" y="280" width="4" height="80" rx="2" fill="#0EA5E9"/>
+    <text x="730" y="307" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle">CLIP Text Encoder</text>
+    <text x="730" y="326" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">tokens → embeddings 77×768</text>
+    <rect x="775" y="335" width="50" height="14" rx="7" fill="#94A3B8"/>
+    <text x="800" y="345" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">FROZEN</text>
+  </g>
+
+  <!-- Add noise (DDPM Scheduler) -->
+  <g filter="url(#shadow-sm)">
+    <rect x="300" y="250" width="220" height="60" rx="10" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+    <text x="410" y="274" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#1E293B" text-anchor="middle">DDPM Scheduler</text>
+    <text x="410" y="294" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="400" fill="#64748B" text-anchor="middle">noisy_latents = add_noise(z, ε, t)</text>
+  </g>
+
+  <!-- UNet + LoRA (the star) -->
+  <g filter="url(#shadow-md)">
+    <rect x="300" y="370" width="540" height="180" rx="12" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>
+    <rect x="300" y="370" width="4" height="180" rx="2" fill="#6366F1"/>
+
+    <text x="570" y="398" font-family="'Inter', system-ui, sans-serif" font-size="14" font-weight="700" fill="#1E293B" text-anchor="middle">UNet 2D Condition Model</text>
+    <rect x="725" y="385" width="50" height="14" rx="7" fill="#94A3B8"/>
+    <text x="750" y="395" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">FROZEN</text>
+
+    <text x="570" y="418" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">predicts noise from (noisy_latents, t, text_embeddings)</text>
+
+    <!-- LoRA inside the UNet -->
+    <g filter="url(#shadow-sm)">
+      <rect x="335" y="435" width="470" height="95" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2"/>
+      <rect x="335" y="435" width="4" height="95" rx="2" fill="#8B5CF6"/>
+
+      <text x="570" y="458" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="700" fill="#5B21B6" text-anchor="middle">LoRA Adapters</text>
+      <rect x="685" y="448" width="80" height="14" rx="7" fill="#8B5CF6"/>
+      <text x="725" y="458" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="700" fill="white" text-anchor="middle">TRAINABLE</text>
+
+      <text x="570" y="478" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="400" fill="#64748B" text-anchor="middle">Injected into to_q · to_k · to_v · to_out.0 of every attention layer</text>
+
+      <rect x="378" y="495" width="78" height="18" rx="9" fill="#1E293B"/>
+      <text x="417" y="507" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">rank = 16</text>
+
+      <rect x="466" y="495" width="78" height="18" rx="9" fill="#1E293B"/>
+      <text x="505" y="507" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">α = 16</text>
+
+      <rect x="554" y="495" width="100" height="18" rx="9" fill="#1E293B"/>
+      <text x="604" y="507" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">3.2 M params</text>
+
+      <rect x="664" y="495" width="100" height="18" rx="9" fill="#1E293B"/>
+      <text x="714" y="507" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">0.37% of UNet</text>
+    </g>
+  </g>
+
+  <!-- MSE Loss -->
+  <g filter="url(#shadow-sm)">
+    <rect x="380" y="575" width="380" height="55" rx="10" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5"/>
+    <rect x="380" y="575" width="4" height="55" rx="2" fill="#10B981"/>
+    <text x="570" y="599" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="600" fill="#1E293B" text-anchor="middle">MSE Loss · AdamW · cosine LR</text>
+    <text x="570" y="617" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="400" fill="#64748B" text-anchor="middle">∥ noise − noise_pred ∥²  →  gradient updates LoRA only</text>
+  </g>
+
+  <!-- ============ Column 3: OUTPUT ============ -->
+
+  <!-- LoRA adapter output file -->
+  <g filter="url(#shadow-md)">
+    <rect x="920" y="380" width="220" height="160" rx="12" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2"/>
+    <rect x="920" y="380" width="4" height="160" rx="2" fill="#8B5CF6"/>
+
+    <text x="1030" y="412" font-family="'Inter', system-ui, sans-serif" font-size="14" font-weight="700" fill="#5B21B6" text-anchor="middle">LoRA Adapter</text>
+    <text x="1030" y="432" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="500" fill="#64748B" text-anchor="middle">pytorch_lora_weights</text>
+    <text x="1030" y="446" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="500" fill="#64748B" text-anchor="middle">.safetensors</text>
+
+    <rect x="960" y="465" width="65" height="18" rx="9" fill="#1E293B"/>
+    <text x="992" y="478" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">~30 MB</text>
+
+    <rect x="1035" y="465" width="100" height="18" rx="9" fill="#1E293B"/>
+    <text x="1085" y="478" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="white" text-anchor="middle">reload at inference</text>
+
+    <line x1="945" y1="497" x2="1115" y2="497" stroke="#E2E8F0" stroke-width="1"/>
+
+    <text x="1030" y="514" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="600" fill="#10B981" text-anchor="middle">trained on RunPod</text>
+    <text x="1030" y="529" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="600" fill="#10B981" text-anchor="middle">&lt; 10 min · &lt; 1 €</text>
+  </g>
+
+  <!-- ============ ARROWS ============ -->
+
+  <!-- Image → VAE Encoder (horizontal, slight step) -->
+  <path d="M 220,175 L 280,175 Q 290,175 290,180 L 290,180" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" marker-end="url(#arrow-slate)"/>
+  <path d="M 220,175 L 300,175" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" marker-end="url(#arrow-slate)"/>
+
+  <!-- VAE Encoder → DDPM Scheduler (vertical) -->
+  <path d="M 410,215 L 410,250" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" marker-end="url(#arrow-slate)"/>
+
+  <!-- DDPM Scheduler → UNet (vertical, longer) -->
+  <path d="M 410,310 L 410,370" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" marker-end="url(#arrow-slate)"/>
+
+  <!-- Caption → Text Encoder (L-shape: right, then enter from left) -->
+  <path d="M 220,320 L 600,320 Q 620,320 620,320" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" marker-end="url(#arrow-slate)"/>
+
+  <!-- Text Encoder → UNet (vertical) -->
+  <path d="M 730,360 L 730,370" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" marker-end="url(#arrow-slate)"/>
+
+  <!-- UNet → MSE Loss -->
+  <path d="M 570,550 L 570,575" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" marker-end="url(#arrow-slate)"/>
+
+  <!-- Loss → LoRA (gradient flow, dashed pink, curved back up) -->
+  <path d="M 380,600 L 280,600 Q 260,600 260,580 L 260,485 Q 260,465 280,465 L 335,465" fill="none" stroke="#F43F5E" stroke-width="1.5" stroke-dasharray="5,3" stroke-linecap="round" marker-end="url(#arrow-rose)"/>
+  <text x="247" y="540" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="600" fill="#F43F5E" text-anchor="middle" transform="rotate(-90, 247, 540)">∇ gradient (LoRA only)</text>
+
+  <!-- LoRA → Output file (purple, end of training) -->
+  <path d="M 805,485 L 880,485 Q 900,485 900,465 L 900,440 Q 900,420 920,420 L 920,420" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow-violet)"/>
+
+  <!-- ============ Bottom legend ============ -->
+  <rect x="40" y="660" width="1120" height="50" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+
+  <circle cx="68" cy="685" r="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+  <text x="80" y="689" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#1E293B">Inputs</text>
+
+  <circle cx="148" cy="685" r="6" fill="#F0F9FF" stroke="#0EA5E9" stroke-width="1.5"/>
+  <text x="160" y="689" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#1E293B">Frozen encoder (fp16)</text>
+
+  <circle cx="298" cy="685" r="6" fill="#EEF2FF" stroke="#6366F1" stroke-width="1.5"/>
+  <text x="310" y="689" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#1E293B">UNet (frozen, fp16)</text>
+
+  <circle cx="436" cy="685" r="6" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="1.5"/>
+  <text x="448" y="689" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#1E293B">LoRA (trainable, fp32)</text>
+
+  <circle cx="588" cy="685" r="6" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5"/>
+  <text x="600" y="689" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#1E293B">Loss / objective</text>
+
+  <line x1="700" y1="678" x2="730" y2="678" stroke="#F43F5E" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="740" y="682" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#1E293B">backward / gradient</text>
+
+  <text x="1145" y="682" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#64748B" text-anchor="end">lr 1e-4 · 800 steps · batch 1 · grad_accum 4 · fp16</text>
+</svg>

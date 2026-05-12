@@ -105,21 +105,25 @@ def main() -> None:
     unet = UNet2DConditionModel.from_pretrained(config.BASE_MODEL, subfolder="unet")
     noise_scheduler = DDPMScheduler.from_pretrained(config.BASE_MODEL, subfolder="scheduler")
 
-    # Tout est frozen
+    # Tout est frozen + .eval() pour désactiver tout dropout/BN éventuel
     vae.requires_grad_(False)
     text_encoder.requires_grad_(False)
     unet.requires_grad_(False)
+    vae.eval()
+    text_encoder.eval()
 
     # GPU + fp16 pour les modules frozen (économise VRAM)
     vae.to(device, dtype=weight_dtype)
     text_encoder.to(device, dtype=weight_dtype)
     unet.to(device, dtype=weight_dtype)
 
+    # ----- LoRA -----
+    # IMPORTANT : add_adapter AVANT enable_gradient_checkpointing pour que le
+    # checkpoint context voie les params trainables (les LoRA).
+    attach_lora_to_unet(unet, rank=config.LORA_RANK, alpha=config.LORA_ALPHA)
+
     if config.GRADIENT_CHECKPOINTING:
         unet.enable_gradient_checkpointing()
-
-    # ----- LoRA -----
-    attach_lora_to_unet(unet, rank=config.LORA_RANK, alpha=config.LORA_ALPHA)
     # On force les params LoRA en fp32 pour la stabilité numérique (gradient en fp32)
     for param in unet.parameters():
         if param.requires_grad:

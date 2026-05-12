@@ -12,8 +12,7 @@ pydantic-settings
 # torchvision==0.20.1+cu121
 transformers
 accelerate
-peft
-bitsandbytes
+peft>=0.17  # requis par diffusers 0.38+
 safetensors
 datasets
 huggingface_hub

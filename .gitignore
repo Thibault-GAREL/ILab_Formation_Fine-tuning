@@ -40,6 +40,12 @@ outputs/logs/*
 outputs/results/*
 !outputs/**/.gitkeep
 
+# Re-include sample results shown in the README
+!outputs/results/20260512_143947_lora0.8_seed96093185/
+!outputs/results/20260512_143947_lora0.8_seed96093185/**
+!outputs/results/20260512_144021_lora0.8_seed1146161856/
+!outputs/results/20260512_144021_lora0.8_seed1146161856/**
+
 # MLflow
 mlruns/
 .mlflow
