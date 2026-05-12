@@ -20,12 +20,25 @@ from src.config import config
 DEFAULT_NEGATIVE_PROMPT = "blurry, lowres, deformed, ugly, bad anatomy"
 
 
+def select_dtype(device: str) -> torch.dtype:
+    """fp16 sur Ampere+ (SM >= 8.0), fp32 sur Turing/older.
+
+    Les GPUs Turing (GTX 1660/Ti, RTX 2060/70/80) n'ont pas de vrais Tensor Cores
+    fp16 — certaines opérations débordent et produisent des NaN -> images noires.
+    Sur ces cartes, on passe tout en fp32 (plus lent mais stable, ~4.2 GB VRAM).
+    """
+    if device != "cuda":
+        return torch.float32
+    major, _ = torch.cuda.get_device_capability(0)
+    return torch.float16 if major >= 8 else torch.float32
+
+
 def load_pipeline() -> StableDiffusionPipeline:
     """Charge SD 1.5 + LoRA une fois au démarrage."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    dtype = torch.float16 if device == "cuda" else torch.float32
+    dtype = select_dtype(device)
 
-    print(f"Chargement du pipeline ({config.BASE_MODEL}) sur {device} ...")
+    print(f"Chargement du pipeline ({config.BASE_MODEL}) sur {device} en {dtype} ...")
     pipe = StableDiffusionPipeline.from_pretrained(
         config.BASE_MODEL,
         torch_dtype=dtype,

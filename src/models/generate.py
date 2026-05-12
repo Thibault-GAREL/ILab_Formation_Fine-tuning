@@ -27,10 +27,18 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def select_dtype(device: str) -> torch.dtype:
+    """fp16 sur Ampere+ (SM >= 8.0), fp32 sur Turing/older (évite les NaN)."""
+    if device != "cuda":
+        return torch.float32
+    major, _ = torch.cuda.get_device_capability(0)
+    return torch.float16 if major >= 8 else torch.float32
+
+
 def build_pipeline(use_lora: bool, lora_scale: float) -> StableDiffusionPipeline:
     """Construit le pipeline SD 1.5, charge le LoRA si demandé."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    dtype = torch.float16 if device == "cuda" else torch.float32
+    dtype = select_dtype(device)
 
     pipe = StableDiffusionPipeline.from_pretrained(
         config.BASE_MODEL,
