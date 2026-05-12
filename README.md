@@ -24,6 +24,46 @@ The goal: a **simple, fast, reusable base project** for future style/character f
 
 ---
 
+## 🖼️ Training Dataset
+
+15 hand-drawn chibi self-portraits used to fine-tune the LoRA adapter. The images below are the **original drawings** — the training pipeline resizes them to 512×512 with white padding before feeding them to the UNet.
+
+<details>
+<summary><b>📁 Click to view all 15 training drawings</b></summary>
+<br>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20Bienvenu.PNG" width="220"><br><sub>Waving hello</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20Bienvenu%202.PNG" width="220"><br><sub>Waving hello (variant)</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20Au%20revoir.PNG" width="220"><br><sub>Waving goodbye</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20Au%20revoir%202.PNG" width="220"><br><sub>Waving goodbye 2</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20Au%20revoir%203.PNG" width="220"><br><sub>Waving goodbye 3</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20Au%20revoir%204.PNG" width="220"><br><sub>Waving goodbye 4</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20Au%20revoir%205.PNG" width="220"><br><sub>Waving goodbye 5</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20Au%20revoir%206.PNG" width="220"><br><sub>Waving goodbye 6</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20montre.PNG" width="220"><br><sub>Pointing at something</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20bras%20crois%C3%A9s.PNG" width="220"><br><sub>Arms crossed</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20bras%20crois%C3%A9s%20yeux%20ferm%C3%A9s.PNG" width="220"><br><sub>Arms crossed, eyes closed</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20bras%20crois%C3%A9%20lunette%20de%20soleil.PNG" width="220"><br><sub>Arms crossed, sunglasses</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20doigt%20en%20l%27air.PNG" width="220"><br><sub>Finger raised up</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20attend.PNG" width="220"><br><sub>Waiting patiently</sub></td>
+    <td align="center"><img src="data/1-raw/my_drawings/Capture%20surprise.PNG" width="220"><br><sub>Looking surprised</sub></td>
+  </tr>
+</table>
+
+</details>
+
+---
+
 ## 🚨 Status — Work In Progress
 
 This project is being built **step-by-step**. Current state:
@@ -34,13 +74,17 @@ This project is being built **step-by-step**. Current state:
 
   ✅ **Data pipeline** ([src/data/make_dataset.py](src/data/make_dataset.py)) — auto captions from filenames, resize 512×512 with white padding
 
-  ⏳ **Training script** — TODO ([src/models/train.py](src/models/train.py))
+  ✅ **Training script** ([src/models/train.py](src/models/train.py)) — LoRA fine-tuning loop with `accelerate` + MLflow tracking
 
-  ⏳ **Inference script** — TODO ([src/models/generate.py](src/models/generate.py))
+  ✅ **Inference script** ([src/models/generate.py](src/models/generate.py)) — CLI with `--lora-scale`, `--no-lora` for before/after comparison
 
-  ⏳ **Gradio demo** — TODO ([src/demo.py](src/demo.py))
+  ✅ **Gradio demo** ([src/demo.py](src/demo.py)) — local web UI with live `lora_scale` slider
 
-  ⏳ **Architecture diagram** — TODO (will be generated via the `canva-diagrams` skill)
+  ⏳ **First training run** — pending (waiting on install fix below)
+
+  ⏳ **Architecture diagram SVG** — TODO (will be generated via the `canva-diagrams` skill)
+
+  ⏳ **Example outputs** — TODO (will be filled after first successful run)
 
 ### ⚠️ Pending install fix
 
@@ -224,3 +268,23 @@ Built on top of:
 - 🤗 [peft](https://github.com/huggingface/peft) — LoRA / parameter-efficient fine-tuning
 
 Code created by me 😎, Thibault GAREL - [Github](https://github.com/Thibault-GAREL)
+
+
+<!-- # 0. Activer le venv
+& c:\0-Code_py_temp\pytorch_cuda_env\Scripts\Activate.ps1
+
+# 1. Préparer le dataset (~5 sec)
+python -m src.data.make_dataset
+
+# 2. Entraîner le LoRA (~20-30 min sur GTX 1660 Ti)
+python -m src.models.train
+
+# 3. Tester via CLI
+python -m src.models.generate --prompt "a thibchibi character drinking coffee"
+
+# 4. Tester via Gradio
+python -m src.demo -->
+
+
+<!-- pip install --force-reinstall --no-deps safetensors
+pip install diffusers gradio -->
